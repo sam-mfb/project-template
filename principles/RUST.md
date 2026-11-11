@@ -14,7 +14,7 @@ This document says what [ARCHITECTURE.md](ARCHITECTURE.md) and [CODING.md](CODIN
 
 6. Stand-ins and other test support are behind a `testing` feature that only test code turns on.
 
-7. A third-party crate is imported by one crate, and its types stay inside that crate. This rule does not apply to third-party crates that shape the language (e.g., thiserror, futures, serde).
+7. A third-party crate is imported and wrapped by one or more project crates, and its types stay inside those crates. The number of wrapping crates should be minimized, but is ultimately up to the developer's judgment. This rule does not apply to third-party crates that shape the language (e.g., thiserror, futures, serde, tokio), though rules about side effects still apply.
 
 8. Errors are typed with `thiserror`. Program code returns `Result`; `unwrap` and `expect` are for tests.
 
