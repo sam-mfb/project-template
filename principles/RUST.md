@@ -12,7 +12,7 @@ This document says what [ARCHITECTURE.md](ARCHITECTURE.md) and [CODING.md](CODIN
 
 5. A dependency is a trait, declared by the consuming crate or by a contract crate, with an implementation supplied at startup.
 
-6. Code that touches the machine is behind a `real` feature, and its stand-in is behind a `testing` feature. Only the program turns `real` on; only tests turn `testing` on.
+6. A side-effect crate exports only its implementation of a contract declared elsewhere. The crate that declares the contract provides the stand-in behind a `testing` feature. Only the program depends on side-effect crates; only tests turn `testing` on.
 
 7. A third-party crate is imported by one crate, and its types stay inside that crate. This rule does not apply to third-party crates that shape the language (e.g., thiserror, futures, serde).
 

@@ -122,9 +122,9 @@ These principles are not an exhaustive list of best practices or responsible cod
 
 4.3.2 Composition code SHOULD be clear and readable by a human. Reading compositional code should make it clear which business logic is being implemented and what side effects it will have.
 
-4.3.3 Composition code MUST NOT have side effects.
+4.3.3 Composition code MUST NOT itself implement side effects.
 
-4.3.4 Composition code SHOULD NOT have business logic.
+4.3.4 Composition code SHOULD NOT itself implement complex business logic.
 
 4.3.4.1 Simple business logic, such as adapter logic, is acceptable in composition code.
 
