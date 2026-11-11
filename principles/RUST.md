@@ -10,7 +10,7 @@ This document says what [ARCHITECTURE.md](ARCHITECTURE.md) and [CODING.md](CODIN
 
 4. Visibility is the module boundary. An item is `pub` only when another crate needs it.
 
-5. A dependency is a trait the consuming crate declares, with an implementation supplied at startup.
+5. A dependency is a trait, declared by the consuming crate or by a contract crate, with an implementation supplied at startup.
 
 6. Code that touches the machine is behind a `real` feature, and its stand-in is behind a `testing` feature. Only the program turns `real` on; only tests turn `testing` on.
 

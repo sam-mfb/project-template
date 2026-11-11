@@ -22,9 +22,11 @@ These principles are not an exhaustive list of best practices or responsible cod
 
 1.2.3 Modules MUST NOT be organized by kind of code: there is no module called "types", "utils", or "helpers".
 
+1.2.3.1 The desire to organize modules by kind of code is an indication that a reorganization is needed. All code SHOULD belong to a domain.
+
 1.3 Modules MUST NOT share decision-making responsibility.
 
-1.3.1 For example, if a module owns the concern of authentication, it must return an identity that other modules can rely on and that will not be overridden by them.
+1.3.1 For example, if a module owns the concern of authentication and returns an identity object, other modules MUST be able to rely on that and it MUST NOT be overridden by them.
 
 1.4 Each module MUST state clearly in its documentation what it owns and what it exposes.
 
@@ -38,43 +40,63 @@ These principles are not an exhaustive list of best practices or responsible cod
 
 2.1 A module SHOULD expose an item only when another module needs it.
 
-2.2 Modules SHOULD declare their contracts independent of outside sources, unless they are required to implement and stay up to date with a specific external contract.
+2.2 Modules SHOULD declare their contracts independent of outside sources, unless they are expressly implementing an external contract.
 
-2.2.1 In other words, a module SHOULD only implement externally defined contracts if it is explicitly intended that the module break when the external contract changes.
+2.3 Modules SHOULD use an outside source for a contract when they are required to implement and stay up to date with an external contract.
 
-2.3 Contracts SHOULD NOT break.
+2.3.1 In this situation it is explicitly intended that the module break when the external contract changes.
 
-2.3.1 New behaviors SHOULD be added to the system rather than replace old behavior.
+2.3.2 Modules that implement external contracts SHOULD be named accordingly, e.g., `vpn` and `vpn-tailscale`.
 
-2.3.2 Exceptions to this rule MUST be done with notice to consumers of the contract.
+2.4 Contracts SHOULD NOT break.
 
-2.4 Modules SHOULD provide stand-in or mock implementations of their contracts that can be used in testing without the need for significant dependencies.
+2.4.1 New behaviors SHOULD be added to the system rather than replace old behavior.
 
-2.5 Modules MUST have automated tests that test their contract.
+2.4.2 Exceptions to this rule MUST be done with notice to consumers of the contract.
+
+2.5 Modules SHOULD provide stand-in or mock implementations of their contracts that can be used in testing without the need for significant dependencies.
+
+2.6 Modules MUST have automated tests that test their contract.
 
 ## Dependencies
 
 3. Modules MUST state explicitly what they require that is not their concern ("dependencies").
 
-3.1 Modules SHOULD define their dependencies independent of outside sources.
+3.1 Modules SHOULD depend only on the precise functionality they need from their dependencies ("loose coupling").
 
-3.1.1 For example, if a module needs a clock and a third party provides a clock dependency that has an ITime contract, a module SHOULD still explicitly define its own IClock dependency even if it is co-extensive with the provided ITime contract.
+3.1.1 A module declares each such dependency in its own terms, including only the functionality it uses.
 
-3.2 Modules SHOULD depend only on the precise functionality they need from their dependencies ("loose coupling").
+3.1.2 If a third-party dependency's contract does not match a module's declared dependency, the dependency SHOULD be provided via an adapter in a module that wraps the third-party component.
 
-3.2.1 If a third party provides an ITime contract, but only three of its four methods are required by the module, the module's IClock definition SHOULD only include those three methods.
+3.1.2.1 This is almost always the case with third-party dependencies.
 
-3.2.2 If a module constantly needs updating when its dependency receives an update, that is a red flag.
+3.2 If multiple modules require the same dependency a contract module SHOULD be used.
 
-3.2.3 If a third-party dependency's contract does not match a module's declared dependency, the dependency SHOULD be provided via an adapter in a module that wraps the third-party component.
+3.2.1 A contract module is a module that only declares a contract and is implemented by one or more other modules.
 
-3.2.3.1 This is almost always the case with third-party dependencies.
+3.2.2 Contract modules are implemented by modules following principle 2.3.
 
-3.3 Modules SHOULD receive implementations of their dependencies upon initialization ("dependency injection").
+3.2.3 When using a contract module, the contract module is the contract of its implementer and defines the dependency of its dependent module.
+
+3.2.3.1 For example, `vpn` is a contract module, `vpn-tailscale` implements it, and `network` declares a dependency on the contract provided by `vpn`. A parent module injects `vpn-tailscale` into `network` to satisfy the contract of `vpn`.
+
+3.2.4 Stand-ins SHOULD be implemented in the contract module or in a separate testing module, not the implementer.
+
+3.3 Developers MUST apply judgment to determine whether a given situation requires the application of 3.1 (loose coupling/adapters) or 3.2 (contract module).
+
+3.3.1 Loose coupling SHOULD be used for third-party dependencies.
+
+3.3.2 Loose coupling SHOULD be used for one-to-one dependencies (module A, and only module A, depends on module B).
+
+3.3.3 Contract modules SHOULD be used if multiple implementations are likely.
+
+3.3.4 Contract modules SHOULD be used if a module is likely to be depended on by more than two other modules.
+
+3.4 Modules SHOULD receive implementations of their dependencies upon initialization ("dependency injection").
 
 ## Kinds
 
-4. A module's kind SHOULD be one, and only one, of the following: (1) business logic, (2) side effects, (3) composition.
+4. A module's kind SHOULD be one, and only one, of the following: (1) business logic, (2) side effects, (3) composition, (4) contract.
 
 4.1 Business logic handles the manipulation of data.
 
@@ -89,6 +111,8 @@ These principles are not an exhaustive list of best practices or responsible cod
 4.3.1 Composition can be achieved by ordering or by dependency injection.
 
 4.3.2 Composition code SHOULD be clear and readable by a human. Reading compositional code should make it clear which business logic is being implemented and what side effects it will have, while not itself containing either.
+
+4.4 Contract modules are used to facilitate dependency injection as explained in 3.2.
 
 ## Errors
 
