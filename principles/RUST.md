@@ -14,7 +14,7 @@ This document says what [ARCHITECTURE.md](ARCHITECTURE.md) and [CODING.md](CODIN
 
 6. Code that touches the machine is behind a `real` feature, and its stand-in is behind a `testing` feature. Only the program turns `real` on; only tests turn `testing` on.
 
-7. A third-party crate is imported by one crate, and its types stay inside that crate.
+7. A third-party crate is imported by one crate, and its types stay inside that crate. This rule does not apply to third-party crates that shape the language (e.g., thiserror, futures, serde).
 
 8. Errors are typed with `thiserror`. Program code returns `Result`; `unwrap` and `expect` are for tests.
 

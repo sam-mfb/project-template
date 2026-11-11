@@ -40,7 +40,7 @@ These principles are not an exhaustive list of best practices or responsible cod
 
 2.1 A module SHOULD expose an item only when another module needs it.
 
-2.2 Modules SHOULD declare their contracts independent of outside sources, unless they are expressly implementing an external contract.
+2.2 Modules SHOULD declare their contracts independent of outside sources, unless they are expressly implementing an external contract such as a well-known protocol or a contract module (see 3.2).
 
 2.3 Modules SHOULD use an outside source for a contract when they are required to implement and stay up to date with an external contract.
 
@@ -66,13 +66,17 @@ These principles are not an exhaustive list of best practices or responsible cod
 
 3.1.1 A module declares each such dependency in its own terms, including only the functionality it uses.
 
-3.1.2 If a third-party dependency's contract does not match a module's declared dependency, the dependency SHOULD be provided via an adapter in a module that wraps the third-party component.
+3.1.2 If a dependency's contract does not match a module's declared dependency, the dependency SHOULD be provided via adapter logic. See also 4.5.
 
-3.1.2.1 This is almost always the case with third-party dependencies.
+3.1.2.1 Third-party dependencies SHOULD be wrapped in a module that provides adapter logic to meet a contract provided by the project.
+
+3.1.2.2 Third-party dependencies SHOULD NOT be directly relied on.
+
+3.1.2.3 A module MUST NOT depend on its consumer in order to implement that consumer's dependency (circular dependency).
 
 3.2 If multiple modules require the same dependency a contract module SHOULD be used.
 
-3.2.1 A contract module is a module that only declares a contract and is implemented by one or more other modules.
+3.2.1 A contract module is a module that declares a contract and is implemented by one or more other modules.
 
 3.2.2 Contract modules are implemented by modules following principle 2.3.
 
@@ -82,11 +86,15 @@ These principles are not an exhaustive list of best practices or responsible cod
 
 3.2.4 Stand-ins SHOULD be implemented in the contract module or in a separate testing module, not the implementer.
 
+3.2.5 If idiomatic in a given language, contract modules MAY provide methods that operate on the contract and values used by the contract.
+
+3.2.5.1 Contract modules MUST NOT provide side effects, implementation-specific methods, or configured values.
+
 3.3 Developers MUST apply judgment to determine whether a given situation requires the application of 3.1 (loose coupling/adapters) or 3.2 (contract module).
 
 3.3.1 Loose coupling SHOULD be used for third-party dependencies.
 
-3.3.2 Loose coupling SHOULD be used for one-to-one dependencies (module A, and only module A, depends on module B).
+3.3.2 Loose coupling SHOULD be used for one-to-one dependencies (module A, and only module A, depends on module B) where multiple implementations of the dependency are not likely.
 
 3.3.3 Contract modules SHOULD be used if multiple implementations are likely.
 
@@ -106,13 +114,27 @@ These principles are not an exhaustive list of best practices or responsible cod
 
 4.2.1 The following things are examples of side effects: throwing errors, reading time, obtaining randomness, logging.
 
+4.2.1.1 Returning an error is not a side effect.
+
 4.3 Composition unites business logic and side effect modules together.
 
 4.3.1 Composition can be achieved by ordering or by dependency injection.
 
-4.3.2 Composition code SHOULD be clear and readable by a human. Reading compositional code should make it clear which business logic is being implemented and what side effects it will have, while not itself containing either.
+4.3.2 Composition code SHOULD be clear and readable by a human. Reading compositional code should make it clear which business logic is being implemented and what side effects it will have.
+
+4.3.3 Composition code MUST NOT have side effects.
+
+4.3.4 Composition code SHOULD NOT have business logic.
+
+4.3.4.1 Simple business logic, such as adapter logic, is acceptable in composition code.
 
 4.4 Contract modules are used to facilitate dependency injection as explained in 3.2.
+
+4.5 Adapter logic facilitates loose coupling as explained in 3.1.2.
+
+4.5.1 Simple adapter logic SHOULD be included in composition modules.
+
+4.5.2 Complex adapter logic SHOULD be provided via a separate business logic module.
 
 ## Errors
 
